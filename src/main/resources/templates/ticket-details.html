@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dettagli Ticket</title>
+    <link rel="stylesheet" href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Ticket Platform</a>
+            <div class="d-flex">
+                <a class="btn btn-outline-danger" href="/logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Titolo -->
+    <div class="container mt-4">
+        <h1 class="h3 mb-4">
+            Dettagli Ticket #<span th:text="${ticket.id}">123</span> - <span th:text="${ticket.title}">Problema con l'accesso</span>
+        </h1>
+
+        <!-- Card Informazioni Ticket -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Informazioni del Ticket</h5>
+                <p><strong>Descrizione:</strong> <span th:text="${ticket.description}">Il cliente non riesce ad accedere</span></p>
+                <p><strong>Stato:</strong> <span th:text="${ticket.status}">In Corso</span></p>
+                <p><strong>Operatore Assegnato:</strong> <span th:text="${ticket.assignedOperator.nome + ' ' + ticket.assignedOperator.cognome}">Mario Rossi</span></p>
+            </div>
+        </div>
+
+        <!-- Sezione Note -->
+        <h5 class="mb-3">Note del Ticket</h5>
+        <ul class="list-group mb-4">
+            <li class="list-group-item" th:each="note : ${notes}">
+                <strong th:text="${note.author.nome}">Autore</strong>: <span th:text="${note.content}">Nota</span>
+                <span class="text-muted float-end" th:text="${note.createdAt}">15/12/2024</span>
+            </li>
+        </ul>
+
+        <!-- Form Aggiungi Nota -->
+        <form th:action="@{/support/tickets/{id}/notes(id=${ticket.id})}" method="post" class="mb-4">
+            <div class="mb-3">
+                <label for="noteContent" class="form-label">Aggiungi una nuova nota</label>
+                <textarea class="form-control" id="noteContent" name="content" rows="3" placeholder="Scrivi una nota..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Aggiungi Nota</button>
+        </form>        
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-light text-center text-lg-start mt-5">
+        <div class="text-center p-3">
+            &copy; 2024 Ticket Platform. Tutti i diritti riservati.
+        </div>
+    </footer>
+
+    <script src="/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
