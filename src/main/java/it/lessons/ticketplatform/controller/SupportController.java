@@ -50,15 +50,21 @@ public class SupportController {
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('OPERATOR')")
     @GetMapping("/tickets/{id}")
-    public String viewTicketDetails(@PathVariable Long id, Model model) {
+    public String viewTicketDetails(@PathVariable Long id, Model model, Authentication authentication) {
         System.out.println("ID del Ticket caricato: " + id);
         Optional<Ticket> ticketOptional = ticketRepository.findById(id);
 
         if (ticketOptional.isPresent()) {
             Ticket ticket = ticketOptional.get();
+            System.out.println("Ticket trovato: ID = " + ticket.getId() + ", Stato = " + ticket.getStatus());
             model.addAttribute("ticket", ticket);
             model.addAttribute("notes", noteRepository.findByTicketId(id));
-            return "ticket-details"; // Usa lo stesso template per tutti i ruoli
+
+            // Aggiungi l'utente corrente al modello
+            User currentUser = (User) authentication.getPrincipal();
+            model.addAttribute("currentUser", currentUser);
+
+            return "ticket-details"; // Template condiviso
         }
 
         // Se il ticket non esiste, reindirizza alla dashboard
@@ -175,20 +181,29 @@ public class SupportController {
     }
 
     // Ticket Details (Condiviso tra amministratore e operatore)
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERATOR')")
     @PostMapping("/tickets/{id}/status")
-    public String updateTicketStatus(@PathVariable Long id, @RequestParam Status status) {
-        Optional<Ticket> ticket = ticketRepository.findById(id);
-        if (ticket.isPresent()) {
-            Ticket existingTicket = ticket.get();
-            existingTicket.setStatus(status);
-            ticketRepository.save(existingTicket);
+    public String updateTicketStatus(@PathVariable Long id, @RequestParam("status") String status) {
+        // Recupera il ticket dal database
+        Optional<Ticket> ticketOptional = ticketRepository.findById(id);
+        if (ticketOptional.isPresent()) {
+            Ticket ticket = ticketOptional.get();
+            try {
+                // Aggiorna lo stato del ticket
+                ticket.setStatus(Ticket.Status.valueOf(status));
+                ticketRepository.save(ticket);
+                System.out.println("Stato del ticket aggiornato a: " + status);
+            } catch (IllegalArgumentException e) {
+                System.out.println("Stato non valido: " + status);
+            }
+        } else {
+            System.out.println("Ticket non trovato con ID: " + id);
         }
-        return "redirect:/support/operator/dashboard";
+    
+        // Reindirizza alla stessa pagina dei dettagli
+        return "redirect:/support/tickets/" + id;
     }
-
-
-
-
+    
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('OPERATOR')")
     @PostMapping("/tickets/{id}/notes")

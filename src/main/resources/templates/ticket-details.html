@@ -23,6 +23,20 @@
             Dettagli Ticket #<span th:text="${ticket.id}">123</span> - <span th:text="${ticket.title}">Problema con l'accesso</span>
         </h1>
 
+        <!-- Bottone Torna alla Dashboard -->
+        <div class="mb-4">
+            <a th:if="${currentUser.role.name() == 'ADMIN'}" 
+            th:href="@{/support/admin/dashboard}" 
+            class="btn btn-secondary">
+                Torna alla Dashboard Admin
+            </a>
+            <a th:if="${currentUser.role.name() == 'OPERATOR'}" 
+            th:href="@{/support/operator/dashboard}" 
+            class="btn btn-secondary">
+                Torna alla Dashboard Operatore
+            </a>
+        </div>
+
         <!-- Card Informazioni Ticket -->
         <div class="card mb-4">
             <div class="card-body">
@@ -30,6 +44,28 @@
                 <p><strong>Descrizione:</strong> <span th:text="${ticket.description}">Il cliente non riesce ad accedere</span></p>
                 <p><strong>Stato:</strong> <span th:text="${ticket.status}">In Corso</span></p>
                 <p><strong>Operatore Assegnato:</strong> <span th:text="${ticket.assignedOperator.nome + ' ' + ticket.assignedOperator.cognome}">Mario Rossi</span></p>
+            </div>
+        </div>
+
+        <!-- Form per cambiare lo stato del ticket -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title">Cambia Stato del Ticket</h5>
+                <form th:action="@{'/support/tickets/' + ${ticket.id} + '/status'}" method="post" class="row g-3">
+                    <div class="col-md-6">
+                        <label for="status" class="form-label">Stato</label>
+                        <select id="status" name="status" class="form-select" required>
+                            <option th:each="statusOption : ${T(it.lessons.ticketplatform.model.Ticket.Status).values()}"
+                                    th:value="${statusOption}"
+                                    th:text="${statusOption}"
+                                    th:selected="${ticket.status != null and statusOption.name() == ticket.status.name()}">
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary">Aggiorna Stato</button>
+                    </div>
+                </form>
             </div>
         </div>
 
