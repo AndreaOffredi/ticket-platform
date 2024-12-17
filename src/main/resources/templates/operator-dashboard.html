@@ -18,7 +18,7 @@
         </div>
     </nav>
 
-    <!-- Main content -->
+    <!-- Main  -->
     <div class="container mt-4">
         <h1 class="text-center mb-4">Dashboard Operatore</h1>
 
@@ -34,7 +34,7 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- Placeholder per i ticket assegnati -->
+                <!-- Tabella per i ticket assegnati -->
                 <tr th:each="ticket : ${tickets}">
                     <td th:text="${ticket.id}"></td>
                     <td th:text="${ticket.title}"></td>

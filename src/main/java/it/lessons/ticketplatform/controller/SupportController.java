@@ -8,7 +8,6 @@ import it.lessons.ticketplatform.model.Ticket;
 import it.lessons.ticketplatform.model.Note;
 import it.lessons.ticketplatform.model.User;
 import it.lessons.ticketplatform.model.User.Role;
-//import it.lessons.ticketplatform.model.Ticket.Status;
 import it.lessons.ticketplatform.repository.NoteRepository;
 import it.lessons.ticketplatform.repository.TicketRepository;
 import it.lessons.ticketplatform.repository.UserRepository;
@@ -33,7 +32,7 @@ public class SupportController {
     @Autowired
     private NoteRepository noteRepository;
 
-    // Admin Dashboard
+    // ADMIN DASHBOARD
     @GetMapping("/admin/dashboard")
     public String adminDashboard(Model model) {
         List<Ticket> tickets = ticketRepository.findAll();
@@ -41,6 +40,7 @@ public class SupportController {
         return "admin-dashboard";
     }
 
+    //Query di ricerca ticket
     @GetMapping("/admin/tickets/search")
     public String searchTickets(@RequestParam String query, Model model) {
         List<Ticket> tickets = ticketRepository.findByTitleContainingIgnoreCase(query);
@@ -48,30 +48,7 @@ public class SupportController {
         return "admin-dashboard";
     }
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERATOR')")
-    @GetMapping("/tickets/{id}")
-    public String viewTicketDetails(@PathVariable Long id, Model model, Authentication authentication) {
-        System.out.println("ID del Ticket caricato: " + id);
-        Optional<Ticket> ticketOptional = ticketRepository.findById(id);
-
-        if (ticketOptional.isPresent()) {
-            Ticket ticket = ticketOptional.get();
-            System.out.println("Ticket trovato: ID = " + ticket.getId() + ", Stato = " + ticket.getStatus());
-            model.addAttribute("ticket", ticket);
-            model.addAttribute("notes", noteRepository.findByTicketId(id));
-
-            // Aggiungi l'utente corrente al modello
-            User currentUser = (User) authentication.getPrincipal();
-            model.addAttribute("currentUser", currentUser);
-
-            return "ticket-details"; // Template condiviso
-        }
-
-        // Se il ticket non esiste, reindirizza alla dashboard
-        return "redirect:/support/admin/dashboard";
-    }
-
-
+    //CRUD per Admin (Create, Update e Delete)
     @GetMapping("/admin/tickets/new")
     public String createTicketForm(Model model) {
         model.addAttribute("ticket", new Ticket());
@@ -116,10 +93,11 @@ public class SupportController {
         return "redirect:/support/admin/dashboard";
     }
 
-    // Operator Dashboard
+
+    //OPERATOR DASHBOARD
     @GetMapping("/operator/dashboard")
     public String operatorDashboard(Model model, Authentication authentication) {
-        // Ottieni l'utente autenticato
+        // Ottiene l'utente autenticato
         User currentUser = (User) authentication.getPrincipal();
         Long operatorId = currentUser.getId(); // Usa l'ID dell'utente autenticato
 
@@ -130,18 +108,18 @@ public class SupportController {
         return "operator-dashboard";
     }
 
-
+    //CRUD Operator
     @PreAuthorize("hasRole('OPERATOR')")
     @GetMapping("/operator/profile")
     public String viewOperatorProfile(Authentication authentication, Model model) {
-        // Ottieni l'utente attualmente autenticato
+        // Ottiene l'utente attualmente autenticato
         User currentUser = (User) authentication.getPrincipal();
 
         // Recupera i dati aggiornati dal database
         User operator = userRepository.findById(currentUser.getId())
                 .orElseThrow(() -> new RuntimeException("Operatore non trovato"));
 
-        // Aggiungi l'operatore al modello
+        // Aggiunge l'operatore al modello
         model.addAttribute("operator", operator);
 
         return "operator-profile";
@@ -172,15 +150,40 @@ public class SupportController {
         // Salva l'utente aggiornato
         userRepository.save(existingOperator);
 
-        // Aggiungi i dati aggiornati e un messaggio al modello
+        // Aggiunge i dati aggiornati e un messaggio al modello
         model.addAttribute("operator", existingOperator);
         model.addAttribute("successMessage", "Dati aggiornati correttamente!");
 
-        // Restituisci la pagina del profilo
+        // Restituisce la pagina del profilo
         return "operator-profile";
     }
 
-    // Ticket Details (Condiviso tra amministratore e operatore)
+
+    //PAGINA DEI DETTAGLI TICKET CONDIVISA ADMIN-OPERATORE
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERATOR')")
+    @GetMapping("/tickets/{id}")
+    public String viewTicketDetails(@PathVariable Long id, Model model, Authentication authentication) {
+        System.out.println("ID del Ticket caricato: " + id);
+        Optional<Ticket> ticketOptional = ticketRepository.findById(id);
+
+        if (ticketOptional.isPresent()) {
+            Ticket ticket = ticketOptional.get();
+            System.out.println("Ticket trovato: ID = " + ticket.getId() + ", Stato = " + ticket.getStatus());
+            model.addAttribute("ticket", ticket);
+            model.addAttribute("notes", noteRepository.findByTicketId(id));
+
+            // Aggiunge l'utente corrente al modello
+            User currentUser = (User) authentication.getPrincipal();
+            model.addAttribute("currentUser", currentUser);
+
+            return "ticket-details"; // Template condiviso
+        }
+
+        // Se il ticket non esiste, reindirizza alla dashboard
+        return "redirect:/support/admin/dashboard";
+    }
+
+    // Modifica Stato Ticket
     @PreAuthorize("hasRole('ADMIN') or hasRole('OPERATOR')")
     @PostMapping("/tickets/{id}/status")
     public String updateTicketStatus(@PathVariable Long id, @RequestParam("status") String status) {
@@ -204,7 +207,7 @@ public class SupportController {
         return "redirect:/support/tickets/" + id;
     }
     
-
+    //Aggiungere Note alla pagina Ticket Dettagli
     @PreAuthorize("hasRole('ADMIN') or hasRole('OPERATOR')")
     @PostMapping("/tickets/{id}/notes")
     public String addNoteToTicket(@PathVariable Long id, @RequestParam String content) {
