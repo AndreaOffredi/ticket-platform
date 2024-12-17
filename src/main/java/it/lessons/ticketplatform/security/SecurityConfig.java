@@ -35,6 +35,7 @@ public class SecurityConfig {
             .csrf().disable() // Disabilitiamo temporaneamente il CSRF per evitare errori
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/login", "/error", "/resources/**", "/css/**", "/js/**").permitAll()
+                .requestMatchers("/api/**").permitAll() // Rendi pubbliche le API REST
                 .requestMatchers("/support/admin/**").hasRole("ADMIN")
                 .requestMatchers("/support/operator/**").hasRole("OPERATOR")
                 .requestMatchers("/support/tickets/**").hasAnyRole("ADMIN", "OPERATOR") // Permetti l'accesso ai ticket

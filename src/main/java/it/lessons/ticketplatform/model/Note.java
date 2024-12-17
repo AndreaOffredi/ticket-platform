@@ -3,6 +3,8 @@ package it.lessons.ticketplatform.model;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "notes")
 public class Note {
@@ -16,6 +18,7 @@ public class Note {
 
     @ManyToOne
     @JoinColumn(name = "ticket_id", nullable = false)
+    @JsonIgnore
     private Ticket ticket; // Relazione con il ticket associato
 
     @ManyToOne

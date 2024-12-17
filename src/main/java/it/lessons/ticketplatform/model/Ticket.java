@@ -3,6 +3,8 @@ package it.lessons.ticketplatform.model;
 import jakarta.persistence.*;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "tickets")
 public class Ticket {
@@ -26,6 +28,7 @@ public class Ticket {
     private User assignedOperator; // Relazione con l'operatore assegnato
 
     @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Note> notes; // Lista delle note associate al ticket
 
     // Getter e Setter

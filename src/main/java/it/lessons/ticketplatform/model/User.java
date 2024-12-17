@@ -8,6 +8,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -45,6 +47,7 @@ public class User implements UserDetails {
     private Boolean isAvailable;
 
     @OneToMany(mappedBy = "assignedOperator", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Ticket> tickets;
 
     // Costruttori, Getter e Setter

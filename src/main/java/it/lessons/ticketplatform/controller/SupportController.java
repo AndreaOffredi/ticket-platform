@@ -8,7 +8,7 @@ import it.lessons.ticketplatform.model.Ticket;
 import it.lessons.ticketplatform.model.Note;
 import it.lessons.ticketplatform.model.User;
 import it.lessons.ticketplatform.model.User.Role;
-import it.lessons.ticketplatform.model.Ticket.Status;
+//import it.lessons.ticketplatform.model.Ticket.Status;
 import it.lessons.ticketplatform.repository.NoteRepository;
 import it.lessons.ticketplatform.repository.TicketRepository;
 import it.lessons.ticketplatform.repository.UserRepository;
